@@ -5,6 +5,9 @@
 		}
 	],
 	"settings": {
-		"python.pythonPath": "/tmp/rrt_virtualenv/bin/python3"
+		"python.pythonPath": "/tmp/rrt_virtualenv/bin/python3",
+		"python.linting.pylintEnabled": false,
+		"python.linting.mypyEnabled": true,
+		"python.linting.enabled": true
 	}
 }
