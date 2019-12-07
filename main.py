@@ -3,10 +3,10 @@
 from shapely.geometry import Polygon
 from matplotlib import pyplot
 
-from helpers.drawing import clear_output_dir, save_current_figure, plot_polygon
+from helpers.drawing import clear_output_dir, save_current_figure, draw_environment
+
+from helpers.serialization import deserialize_environment
 
 clear_output_dir()
-
-p = Polygon([(1, 1), (3, 1), (2, 2), (1, 2)])
-plot_polygon(p)
+draw_environment(deserialize_environment())
 save_current_figure()
