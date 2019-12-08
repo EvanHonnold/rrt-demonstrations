@@ -30,13 +30,13 @@ class Tree:
 
         self.children[parent].append(new_node)
         self.children[new_node] = list()
-
         self.parents[new_node] = parent
 
     def change_parent(self, node, new_parent)->None:
         old_parent = self.parents[node]
         self.children[old_parent].remove(node)
         self.parents[node] = new_parent
+        self.children[new_parent].append(node)
 
     def nearest_neighbor(self, point:Tuple)->Tuple:
 
@@ -55,15 +55,19 @@ class Tree:
 
         distance_node_pairs = [(self.dist(node, point), node) for node in self]
 
-        # sort by distance
+        # order by increasing distance
         distance_node_pairs.sort(key=lambda pair: pair[0]) 
+        sorted_neighbors = [neighbor for _, neighbor in distance_node_pairs]
 
-        # extract nodes from tuples at the front of the line
-        closest_neighbors = [neighbor for _, neighbor in distance_node_pairs[:num_neighbors]]
+        # special case: few nodes in the tree
+        if len(sorted_neighbors) <= num_neighbors:
+            return sorted_neighbors
+
+        closest_neighbors = sorted_neighbors[:num_neighbors]
 
         # exclude the point used for the query:
         if closest_neighbors[0] == point:
-            closest_neighbors.append(distance_node_pairs[num_neighbors][1])
+            closest_neighbors.append(sorted_neighbors[num_neighbors])
 
         return closest_neighbors
 
@@ -91,3 +95,12 @@ class Tree:
             cost += self.dist(current, parent)
             current = parent
         return cost
+
+    def validate(self):
+        """ For testing purposes """ 
+        for node, children in self.children.items():
+            for child in children:
+                assert self.parents[child] == node
+
+        for node, parent in self.parents.items():
+            assert node in self.children[parent]

@@ -1,4 +1,4 @@
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, LineString
 from typing import Tuple, List
 import random
 
@@ -15,3 +15,9 @@ def path_length(path: List, distance_function)->float:
     for p1, p2 in zip(path, path[1:]):
         distance += distance_function(p1, p2)
     return distance
+
+def line_collides_with_obstacles(path: LineString, obstacles: List[Polygon])->bool:
+    for obstacle in obstacles:
+        if path.intersects(obstacle):
+            return True
+    return False
