@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import numpy as np
+from shapely.geometry import LineString, Polygon
+import random
 
 from helpers.drawing import clear_output_dir, save_current_figure, draw_environment, draw_tree
 from helpers.serialization import deserialize_environment, Environment
@@ -11,9 +13,9 @@ from typing import List, Dict, Tuple
 
 
 
-def drive_from(from_point, target_point)->Tuple:
+def drive_from(from_point, target_point)->LineString:
     """ Local planner. Start at `from_point` and drive a fixed distance towards the target. 
-        Returns the location where we stop. """
+        Returns the path driven. """
 
     MAX_DRIVE_DISTANCE = 1
 
@@ -26,14 +28,23 @@ def drive_from(from_point, target_point)->Tuple:
     unit_vector = full_vector_between_points/full_distance
 
     driving_vector = unit_vector * min(full_distance, MAX_DRIVE_DISTANCE)
-
-    return tuple(from_point + driving_vector)
     
+    point_reached = from_point + driving_vector
+
+    return LineString([tuple(from_point), tuple(point_reached)])
+    
+
+def collides_with_obstacles(path: LineString, obstacles: List[Polygon])->bool:
+    for obstacle in obstacles:
+        if path.intersects(obstacle):
+            return True
+    return False
+
 def close_enough_to_goal(point, goal)->bool:
     return np.linalg.norm(np.array(point) - np.array(goal)) < 0.33
 
 
-
+random.seed(7)
 env = deserialize_environment()
 
 tree = Tree(root=(0, 0))
@@ -41,15 +52,15 @@ tree = Tree(root=(0, 0))
 for i in range(5000):
 
     sample = random_point_in_polygon(env.bounds)
-
     closest_node_on_tree = tree.nearest_neighbor(sample)
-
-    new_node = drive_from(closest_node_on_tree, sample)
-    tree.add(new_node, parent=closest_node_on_tree)
-
-    if close_enough_to_goal(new_node, env.goal):
-        print(f"Reached the goal! {i} samples required.")
-        break
+    driving_path = drive_from(closest_node_on_tree, sample)
+    
+    if not collides_with_obstacles(driving_path, env.obstacles):
+        new_node = driving_path.coords[-1]
+        tree.add(new_node, parent=closest_node_on_tree)
+        if close_enough_to_goal(new_node, env.goal):
+            print(f"Reached the goal! {i} samples required.")
+            break
     
 
 draw_tree(tree)
