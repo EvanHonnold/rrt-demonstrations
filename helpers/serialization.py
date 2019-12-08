@@ -4,8 +4,9 @@ from typing import List
 
 class Environment:
 
-    def __init__(self, obstacles, goal):
+    def __init__(self, obstacles, bounds, goal):
         self.obstacles:List[Polygon] = obstacles
+        self.bounds: Polygon = bounds
         self.goal = goal
 
 def deserialize_environment()->Environment:
@@ -22,9 +23,9 @@ def deserialize_environment()->Environment:
             if item["type"] == "Bounds":
                 x_min, x_max = item["x_range_exclusive"]
                 y_min, y_max = item["y_range_exclusive"]
-                # polygons.append(Polygon([()])) # TODO: continue work here
+                bounds = Polygon([(x_min, y_min), (x_max, y_min), (x_max, y_max), (x_min, y_max)])
 
-    return Environment(polygons, goal)
+    return Environment(polygons, bounds, goal)
 
 # NOTE: should only have to be done once or twice;
 # afterwards, can edit .json by hand:
