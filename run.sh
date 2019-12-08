@@ -25,7 +25,7 @@ if [ ! -f "$env_location/pyvenv.cfg" ]; then
     while true; do
         read -p "$env_location does not yet contain a virtual environment. Create one? [y/n]: " yn
         case $yn in
-            [Yy]* ) python3 -m venv $env_location; break;;
+            [Yy]* ) sudo apt-get install python3-venv; python3 -m venv $env_location; break;;
             [Nn]* ) echo "Exiting setup"; exit;;
             * ) echo "Please answer yes or no.";;
         esac
@@ -36,4 +36,5 @@ fi
 . $env_location/bin/activate
 pip install -r requirements.txt | grep -v 'already satisfied'
 
+chmod +x ./main.py
 ./main.py
