@@ -5,6 +5,7 @@ from matplotlib.collections import PatchCollection
 from typing import List
 import numpy as np
 from helpers.serialization import Environment
+from helpers.tree import Tree
 
 def clear_output_dir()->None:
     files = os.listdir("output")
@@ -18,8 +19,8 @@ def plot_polygons(polygons: List[Polygon])->None:
     collection.set_color([63/255,81/255,181/255]) # indigo 500 (https://www.materialui.co/colors)
     pyplot.gca().add_collection(collection)
 
-def plot_circle(center, radius=0.25):
-    pyplot.gca().add_artist(pyplot.Circle(center, radius=radius, color="green"))
+def plot_circle(center, radius=0.25, color="green"):
+    pyplot.gca().add_artist(pyplot.Circle(center, radius=radius, color=color))
 
 def save_current_figure()->None:
 
@@ -36,3 +37,13 @@ def draw_environment(e: Environment)->None:
     plot_circle([0, 0]) # start
     plot_circle(e.goal)
     plot_polygons(e.obstacles)
+
+def draw_tree(tree: Tree)->None:
+
+    for node in tree:
+        x1, y1 = node
+        for child in tree.children[node]:
+            x2, y2 = child
+            pyplot.plot([x1, x2], [y1, y2], color="black")
+            plot_circle(child, radius=0.05, color="black")
+            

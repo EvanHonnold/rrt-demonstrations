@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from helpers.drawing import clear_output_dir, save_current_figure, draw_environment
+from helpers.drawing import clear_output_dir, save_current_figure, draw_environment, draw_tree
 from helpers.serialization import deserialize_environment, Environment
 from helpers.geometry import random_point_in_polygon
 from helpers.tree import Tree
@@ -29,26 +29,31 @@ def drive_from(from_point, target_point)->Tuple:
 
     return tuple(from_point + driving_vector)
     
+def close_enough_to_goal(point, goal)->bool:
+    return np.linalg.norm(np.array(point) - np.array(goal)) < 0.33
+
 
 
 env = deserialize_environment()
 
 tree = Tree(root=(0, 0))
 
-for i in range(5):
+for i in range(5000):
 
     sample = random_point_in_polygon(env.bounds)
 
     closest_node_on_tree = tree.nearest_neighbor(sample)
 
     new_node = drive_from(closest_node_on_tree, sample)
-
     tree.add(new_node, parent=closest_node_on_tree)
 
-print(tree.children)
+    if close_enough_to_goal(new_node, env.goal):
+        print(f"Reached the goal! {i} samples required.")
+        break
+    
 
-# clear_output_dir()
-# draw_environment(deserialize_environment())
-# save_current_figure()
+draw_tree(tree)
+draw_environment(deserialize_environment())
+save_current_figure()
  
 
