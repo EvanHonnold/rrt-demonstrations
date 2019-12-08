@@ -1,14 +1,17 @@
 from shapely.geometry import Polygon, mapping, shape
 import json
+from typing import List
 
 class Environment:
+
     def __init__(self, obstacles, goal):
-        self.obstacles = obstacles
+        self.obstacles:List[Polygon] = obstacles
         self.goal = goal
 
 def deserialize_environment()->Environment:
     polygons = list()
     goal = None
+    bounds = None
     with open("Serialized Environments/two_walls.json", "r") as f:
         data = json.load(f)
         for item in data:
@@ -16,6 +19,11 @@ def deserialize_environment()->Environment:
                 polygons.append(Polygon(shape(item)))
             if item["type"] == "Goal":
                 goal = item["coordinates"]
+            if item["type"] == "Bounds":
+                x_min, x_max = item["x_range_exclusive"]
+                y_min, y_max = item["y_range_exclusive"]
+                # polygons.append(Polygon([()])) # TODO: continue work here
+
     return Environment(polygons, goal)
 
 # NOTE: should only have to be done once or twice;
