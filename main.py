@@ -51,6 +51,7 @@ random.seed(7)
 env = deserialize_environment()
 
 tree = Tree(root=(0, 0))
+cost_from_goal:Dict = dict({(0, 0): 0})
 
 for i in range(6000):
 
@@ -60,7 +61,13 @@ for i in range(6000):
     
     if not collides_with_obstacles(driving_path, env.obstacles):
         new_node = driving_path.coords[-1]
+
+        # RRT-star "re-wiring" step:
+        
+
         tree.add(new_node, parent=closest_node_on_tree)
+        cost_from_goal[new_node] = cost_from_goal[closest_node_on_tree] 
+
         if close_enough_to_goal(new_node, env.goal):
             print(f"Reached the goal! {i} samples required.")
             break
@@ -68,10 +75,11 @@ for i in range(6000):
 
 path = tree.shortest_path_from_root(env.goal)
 print(path_length(path, distance_function=euclidean_distance))
+print("Neighbors:", tree.nearest_neighbor_list((10, 4.1), 4))
 
-draw_tree(tree)
-draw_path(path)
-draw_environment(deserialize_environment())
-save_current_figure()
+# draw_tree(tree)
+# draw_path(path)
+# draw_environment(deserialize_environment())
+# save_current_figure()
 
 

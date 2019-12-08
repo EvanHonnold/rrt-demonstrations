@@ -12,6 +12,9 @@ class Tree:
         # Internally, this class ensures that if a node is in the tree,
         # it will be a key in the dict (even if it is a leaf node).
         self.children:Dict[List] = {root: list()}
+
+        # Second lookup table to expedite computation of cost from goal:
+        self.parents:Dict = dict()
     
     def __iter__(self):
         return iter(self.children.keys())
@@ -28,6 +31,13 @@ class Tree:
         self.children[parent].append(new_node)
         self.children[new_node] = list()
 
+        self.parents[new_node] = parent
+
+    def change_parent(self, node, new_parent)->None:
+        old_parent = self.parents[node]
+        self.children[old_parent].remove(node)
+        self.parents[node] = new_parent
+
     def nearest_neighbor(self, point:Tuple)->Tuple:
 
         closest_neighbor = self.root
@@ -41,9 +51,26 @@ class Tree:
 
         return closest_neighbor
 
+    def nearest_neighbor_list(self, point, num_neighbors:int)->List:
+
+        distance_node_pairs = [(self.dist(node, point), node) for node in self]
+
+        # sort by distance
+        distance_node_pairs.sort(key=lambda pair: pair[0]) 
+
+        # extract nodes from tuples at the front of the line
+        closest_neighbors = [neighbor for _, neighbor in distance_node_pairs[:num_neighbors]]
+
+        # exclude the point used for the query:
+        if closest_neighbors[0] == point:
+            closest_neighbors.append(distance_node_pairs[num_neighbors][1])
+
+        return closest_neighbors
+
     def shortest_path_from_root(self, point: Tuple)->List[Tuple]:
         """ Uses Djikstra's algorithm to find the shortest path
             from the root to the given point."""
+        
         goal = self.nearest_neighbor(point)
         start = self.root
 
@@ -56,3 +83,11 @@ class Tree:
 
         return uniform_cost_search(start, goal, successors)
         
+    def shortest_path_to_root_cost(self, point: Tuple)->float:
+        current = point
+        cost = 0
+        while current != self.root:
+            parent = self.parents[current]
+            cost += self.dist(current, parent)
+            current = parent
+        return cost
