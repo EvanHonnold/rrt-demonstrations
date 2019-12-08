@@ -1,5 +1,5 @@
 from shapely.geometry import Polygon
-from typing import Tuple
+from typing import Tuple, List
 import random
 
 def random_point_in_polygon(p: Polygon)->Tuple[float, float]:
@@ -9,3 +9,9 @@ def random_point_in_polygon(p: Polygon)->Tuple[float, float]:
     x = random.uniform(min_x, max_x)
     y = random.uniform(min_y, max_y)
     return (x, y)
+
+def path_length(path: List, distance_function)->float:
+    distance = 0
+    for p1, p2 in zip(path, path[1:]):
+        distance += distance_function(p1, p2)
+    return distance

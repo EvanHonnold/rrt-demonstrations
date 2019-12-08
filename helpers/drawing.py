@@ -47,3 +47,8 @@ def draw_tree(tree: Tree)->None:
             pyplot.plot([x1, x2], [y1, y2], color="black")
             plot_circle(child, radius=0.05, color="black")
             
+def draw_path(path: List)->None:
+
+    x_vals = [x for x, _ in path]
+    y_vals = [y for _, y in path]
+    pyplot.plot(x_vals, y_vals, color="green")

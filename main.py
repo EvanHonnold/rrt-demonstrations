@@ -4,9 +4,9 @@ import numpy as np
 from shapely.geometry import LineString, Polygon
 import random
 
-from helpers.drawing import clear_output_dir, save_current_figure, draw_environment, draw_tree
+from helpers.drawing import clear_output_dir, save_current_figure, draw_environment, draw_tree, draw_path
 from helpers.serialization import deserialize_environment, Environment
-from helpers.geometry import random_point_in_polygon
+from helpers.geometry import random_point_in_polygon, path_length
 from helpers.tree import Tree
 
 from typing import List, Dict, Tuple
@@ -43,13 +43,16 @@ def collides_with_obstacles(path: LineString, obstacles: List[Polygon])->bool:
 def close_enough_to_goal(point, goal)->bool:
     return np.linalg.norm(np.array(point) - np.array(goal)) < 0.33
 
+def euclidean_distance(a, b):
+    """ Temporary distance function. TODO: allow constructor to supply others """
+    return np.linalg.norm(np.array(a) - np.array(b))
 
 random.seed(7)
 env = deserialize_environment()
 
 tree = Tree(root=(0, 0))
 
-for i in range(5000):
+for i in range(6000):
 
     sample = random_point_in_polygon(env.bounds)
     closest_node_on_tree = tree.nearest_neighbor(sample)
@@ -63,8 +66,12 @@ for i in range(5000):
             break
     
 
+path = tree.shortest_path_from_root(env.goal)
+print(path_length(path, distance_function=euclidean_distance))
+
 draw_tree(tree)
+draw_path(path)
 draw_environment(deserialize_environment())
 save_current_figure()
- 
+
 
