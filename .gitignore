@@ -4,3 +4,4 @@
 __pycache__
 output/*.png
 output/*.pdf
+output/*.gif
